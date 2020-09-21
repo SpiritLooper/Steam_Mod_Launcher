@@ -17,14 +17,19 @@ echo Running steam game ...
 "%steam_path%\steam.exe" "-applaunch" "%steam_game_id%"
 
 REM Waiting game is running ...
-timeout /t %time_sleep% /nobreak > nul
+:loop 
+FOR /F "tokens=2* skip=2" %%a in ('reg query "HKEY_CURRENT_USER\SOFTWARE\Valve\Steam" /v "RunningAppID"') do set /A HKEY_IDGAME=%%b
+if "0" EQU "%HKEY_IDGAME%" ( 
+   timeout /t %time_sleep% /nobreak > nul 
+   goto :loop 
+)
 
 echo Check if steam game is running ...
-:loop 
+:loop2 
 FOR /F "tokens=2* skip=2" %%a in ('reg query "HKEY_CURRENT_USER\SOFTWARE\Valve\Steam" /v "RunningAppID"') do set /A HKEY_IDGAME=%%b
 if "%steam_game_id%" EQU "%HKEY_IDGAME%" ( 
    timeout /t %time_sleep% /nobreak > nul 
-   goto :loop 
+   goto :loop2 
 )
 
 echo Exiting program ...
